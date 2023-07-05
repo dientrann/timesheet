@@ -14,7 +14,7 @@ export class UserService {
   ) {}
 
   async pageListUser(page: number) {
-    const pageSize = await this.configService.get<number>('app.SIZEPAGE');
+    const pageSize = this.configService.get<number>('app.PageSize');
     const pageData = await this.UserModel.find({})
       .skip(page * pageSize - pageSize)
       .limit(pageSize);
@@ -79,5 +79,16 @@ export class UserService {
     };
     const eidtUser = await this.UserModel.findByIdAndUpdate(id, newData);
     return eidtUser;
+  }
+
+  async checkUser(name: string): Promise<boolean> {
+    const check = await this.UserModel.findOne({ username: name });
+    if (!check) return false;
+    return true;
+  }
+
+  async dataUserbyName(name: string): Promise<User> {
+    const user = await this.UserModel.findOne({ username: name });
+    return user;
   }
 }

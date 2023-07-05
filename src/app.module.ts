@@ -6,6 +6,9 @@ import config from './config/configuration';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './modules/Auth/auth.module';
 import { UserModule } from './modules/User/user.module';
+import { TaskModule } from './modules/Task/task.module';
+import { ClientModule } from './modules/Client/client.module';
+import { ProjectModule } from './modules/Project/project.module';
 
 @Module({
   imports: [
@@ -19,6 +22,9 @@ import { UserModule } from './modules/User/user.module';
     }),
     AuthModule,
     UserModule,
+    TaskModule,
+    ClientModule,
+    ProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

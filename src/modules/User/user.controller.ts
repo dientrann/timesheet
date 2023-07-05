@@ -13,7 +13,7 @@ import {
 import { UserService } from './user.service';
 import { UserDTO } from '../Auth/DTO/user.DTO';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -24,21 +24,29 @@ export class UserController {
     res.status(HttpStatus.OK).json({ pageData, message: 'Page: ' + page });
   }
 
-  @Post()
+  @Post('add')
   async createUserbyAdmin(@Res() res, @Body() user: UserDTO) {
     const newUser = await this.userService.createUserByAdmin(user);
-    if (!newUser) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    if (!newUser)
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     return res.status(HttpStatus.CREATED).json({ message: 'Create Succeed' });
   }
 
-  @Put()
+  @Put('update')
   async updateUserbyAdmin(
     @Res() res,
     @Param('id') id: string,
     @Body() user: UserDTO,
   ) {
     const dataUser = await this.userService.updateUser(id, user);
-    if (!dataUser) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    if (!dataUser)
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     return res.status(HttpStatus.OK).json({ message: 'Create Succeed' });
   }
 }

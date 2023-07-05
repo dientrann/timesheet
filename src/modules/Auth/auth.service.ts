@@ -70,17 +70,4 @@ export class AuthService {
     });
     return token;
   }
-
-  async pageListUser(page: number) {
-    const pageSize = this.configService.get<number>('app.SIZEPAGE');
-    const pageData = await this.UserModel.find({})
-      .skip(page * pageSize - pageSize)
-      .limit(pageSize);
-    if ((await pageData).length == 0)
-      throw new HttpException(
-        'Exceeded the maximum number of pages',
-        HttpStatus.BAD_REQUEST,
-      );
-    return pageData;
-  }
 }
