@@ -104,4 +104,10 @@ export class ProjectService {
     };
     return infoProject;
   }
+
+  async checkProject(name: string): Promise<boolean> {
+    const check = await this.ProjectModel.findOne({ name });
+    if (!check) return false;
+    return true;
+  }
 }

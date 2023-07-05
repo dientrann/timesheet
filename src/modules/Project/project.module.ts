@@ -13,9 +13,11 @@ import { TaskService } from '../Task/task.service';
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [config], envFilePath: '.env' }),
-    MongooseModule.forFeature([{ name: Project.name, schema: ProjectSchema }]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Task.name, schema: TaskSchema }]),
+    MongooseModule.forFeature([
+      { name: Project.name, schema: ProjectSchema },
+      { name: User.name, schema: UserSchema },
+      { name: Task.name, schema: TaskSchema },
+    ]),
   ],
   controllers: [ProjectController],
   providers: [ProjectService, UserService, TaskService],

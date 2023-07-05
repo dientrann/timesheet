@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { TaskDTO } from './DTO/task.DTO';

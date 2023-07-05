@@ -19,7 +19,7 @@ export class UserDTO {
   @IsPhoneNumber()
   phone: string;
 
-  role?: string;
+  role?: number;
 
   createdAt?: Date;
 

@@ -47,7 +47,7 @@ export class AuthService {
       fullName: fullName,
       email: email,
       phone: phone,
-      role: '0',
+      role: 0,
     });
     return newUser.save();
   }
@@ -64,9 +64,11 @@ export class AuthService {
     const checkPassword = await bcrypt.compare(password, findUser.password);
     if (!checkPassword)
       throw new HttpException('Incorrect password', HttpStatus.UNAUTHORIZED);
+    const dataUser = await this.UserModel.findOne({ username });
     const token = await this.jwtService.sign({
       username: username,
       password: password,
+      role: dataUser.role,
     });
     return token;
   }

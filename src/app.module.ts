@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -9,6 +14,15 @@ import { UserModule } from './modules/User/user.module';
 import { TaskModule } from './modules/Task/task.module';
 import { ClientModule } from './modules/Client/client.module';
 import { ProjectModule } from './modules/Project/project.module';
+import { TimeSheetModule } from './modules/TimeSheet/timeSheet.module';
+import { checkToken } from './middleware/checkToken';
+import { JwtModule } from '@nestjs/jwt';
+import { TaskController } from './modules/Task/task.controller';
+import { checkAdmin } from './middleware/checkAdmin';
+import { ClientController } from './modules/Client/client.controller';
+import { UserController } from './modules/User/user.controller';
+import { ProjectController } from './modules/Project/project.controller';
+import { TimeSheetController } from './modules/TimeSheet/timeSheet.controller';
 
 @Module({
   imports: [
@@ -20,13 +34,41 @@ import { ProjectModule } from './modules/Project/project.module';
       }),
       inject: [ConfigService],
     }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('app.KeyToken'),
+      }),
+      inject: [ConfigService],
+    }),
     AuthModule,
     UserModule,
     TaskModule,
     ClientModule,
     ProjectModule,
+    TimeSheetModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, checkToken, checkAdmin],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(checkToken)
+      .forRoutes(
+        UserController,
+        TaskController,
+        ClientController,
+        ProjectController,
+        TimeSheetController,
+      );
+    consumer
+      .apply(checkAdmin)
+      .forRoutes(
+        UserController,
+        TaskController,
+        ClientController,
+        ProjectController,
+      );
+  }
+}

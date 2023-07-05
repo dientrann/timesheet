@@ -36,6 +36,14 @@ export class AuthController {
       );
     return res
       .status(HttpStatus.OK)
+      .cookie('token', token)
       .json({ Token: token, message: 'Login Succeed' });
+  }
+  @Post('logout')
+  async logout(@Res() res) {
+    return res
+      .clearCookie('token')
+      .status(HttpStatus.OK)
+      .send({ message: 'Clear Cookie Succeed' });
   }
 }
