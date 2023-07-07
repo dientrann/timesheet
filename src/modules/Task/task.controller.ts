@@ -32,7 +32,7 @@ export class TaskController {
         .json({ tasks: 'No results found', message: 'Succeed' });
     return res.status(HttpStatus.OK).json({ tasks, message: 'Succeed' });
   }
-  @Post()
+  @Post('add')
   async createTask(@Res() res, @Body() task: TaskDTO) {
     const newTask = await this.taskService.createTask(task);
     if (!newTask)

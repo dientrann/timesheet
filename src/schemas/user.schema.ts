@@ -21,7 +21,7 @@ export class User {
   phone: string;
 
   @Prop()
-  role: number;
+  isAdmin: boolean;
 
   @Prop({ default: now() })
   createdAt: Date;

@@ -9,7 +9,9 @@ export class InfoProjectDTO {
 
   leaderPhone: string;
 
-  task: string;
+  staff: Array<string>;
+
+  task: Array<string>;
 
   timeStart?: Date;
 

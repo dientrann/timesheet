@@ -9,14 +9,20 @@ import {
   Query,
   Res,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { ClientDTO } from './DTO/client.DTO';
+import { AuthGuard } from '@nestjs/passport';
+import { RoleGuard } from 'src/Authentication/role/roles.guard';
 
 @Controller('client')
+@UseGuards(AuthGuard('jwt'))
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
+
   @Get()
+  @UseGuards(RoleGuard)
   async pageListClient(@Res() res, @Query('page') page: number) {
     const pageInt = page || 1;
     const dataPage = await this.clientService.pagelistClient(pageInt);
@@ -30,6 +36,7 @@ export class ClientController {
       .json({ dataPage, message: `Page: ${page}` });
   }
   @Post('add')
+  @UseGuards(RoleGuard)
   async createClient(@Res() res, @Body() client: ClientDTO) {
     const newClient = await this.clientService.createClient(client);
     if (!newClient)
@@ -41,6 +48,7 @@ export class ClientController {
   }
 
   @Put('update/:id')
+  @UseGuards(RoleGuard)
   async updateClient(
     @Res() res,
     @Param('id') id: string,

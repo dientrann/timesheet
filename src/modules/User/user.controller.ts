@@ -9,15 +9,20 @@ import {
   Param,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDTO } from '../Auth/DTO/user.DTO';
+import { UserDTO } from './DTO/user.DTO';
+import { AuthGuard } from '@nestjs/passport';
+import { RoleGuard } from '../../Authentication/role/roles.guard';
 
 @Controller('users')
+@UseGuards(AuthGuard('jwt'))
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
+  @UseGuards(RoleGuard)
   async pageListUser(@Res() res, @Query('page') page: number) {
     const intPage = page || 1;
     const pageData = await this.userService.pageListUser(intPage);
@@ -25,6 +30,7 @@ export class UserController {
   }
 
   @Post('add')
+  @UseGuards(RoleGuard)
   async createUserbyAdmin(@Res() res, @Body() user: UserDTO) {
     const newUser = await this.userService.createUserByAdmin(user);
     if (!newUser)
@@ -35,7 +41,8 @@ export class UserController {
     return res.status(HttpStatus.CREATED).json({ message: 'Create Succeed' });
   }
 
-  @Put('update')
+  @Put('update/:id')
+  @UseGuards(RoleGuard)
   async updateUserbyAdmin(
     @Res() res,
     @Param('id') id: string,
@@ -47,6 +54,6 @@ export class UserController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.OK).json({ message: 'Create Succeed' });
+    return res.status(HttpStatus.OK).json({ message: 'Update Succeed' });
   }
 }

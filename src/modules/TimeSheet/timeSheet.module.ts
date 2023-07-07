@@ -41,8 +41,4 @@ import { JwtModule } from '@nestjs/jwt';
     checkToken,
   ],
 })
-export class TimeSheetModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(checkToken).forRoutes('*');
-  }
-}
+export class TimeSheetModule {}

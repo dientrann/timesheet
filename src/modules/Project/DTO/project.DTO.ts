@@ -1,4 +1,4 @@
-import { ImplementerDTO } from './implementer.DTO';
+import { Implementer } from './implementer';
 
 export class ProjectDTO {
   name: string;
@@ -7,9 +7,9 @@ export class ProjectDTO {
 
   status?: number;
 
-  implementer?: ImplementerDTO;
+  implementer?: Implementer;
 
-  task?: string;
+  task?: Array<string>;
 
   timeStart?: Date;
 

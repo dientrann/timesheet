@@ -9,15 +9,20 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { ProjectDTO } from './DTO/project.DTO';
+import { AuthGuard } from '@nestjs/passport';
+import { RoleGuard } from '../../Authentication/role/roles.guard';
 
 @Controller('project')
+@UseGuards(AuthGuard('jwt'))
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Get()
+  @UseGuards(RoleGuard)
   async pageListProject(@Res() res, @Query('page') page: number) {
     const intPage = page || 1;
     const pageData = await this.projectService.pagelistProject(intPage);
@@ -36,6 +41,7 @@ export class ProjectController {
   }
 
   @Post('add')
+  @UseGuards(RoleGuard)
   async createProject(@Res() res, @Body() project: ProjectDTO) {
     const newProject = await this.projectService.createProject(project);
     if (!newProject)
@@ -47,6 +53,7 @@ export class ProjectController {
   }
 
   @Put('update/:id')
+  @UseGuards(RoleGuard)
   async updateProject(
     @Res() res,
     @Param('id') id: string,
@@ -62,6 +69,7 @@ export class ProjectController {
   }
 
   @Get(':id/info')
+  @UseGuards(RoleGuard)
   async infoProject(@Res() res, @Param('id') id: string) {
     const infoProject = await this.projectService.getInfoProject(id);
     if (!infoProject)

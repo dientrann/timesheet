@@ -60,7 +60,6 @@ export class AppModule implements NestModule {
         TaskController,
         ClientController,
         ProjectController,
-        TimeSheetController,
       );
     consumer
       .apply(checkAdmin)

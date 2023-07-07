@@ -30,12 +30,13 @@ export class ClientService {
     return newClient.save();
   }
   async updateClient(id: string, client: ClientDTO): Promise<Client> {
-    const { name, address } = client;
+    const { name, address, phone } = client;
     const check = await this.ClientModel.findById(id);
     if (!check) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     const dataClient: ClientDTO = {
       name: name,
       address: address,
+      phone: phone,
       updatedAt: now(),
     };
     const editClient = await this.ClientModel.findByIdAndUpdate(id, dataClient);

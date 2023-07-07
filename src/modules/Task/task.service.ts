@@ -18,9 +18,7 @@ export class TaskService {
 
   async createTask(task: TaskDTO): Promise<Task> {
     const { name, describe } = task;
-    const check = await this.TaskModel.findOne({ name });
-    if (check)
-      throw new HttpException('Task already exists', HttpStatus.UNAUTHORIZED);
+    const checkName = await this.checkNameTask(name);
     const newTask = new this.TaskModel({
       name: name,
       describe: describe,
@@ -29,16 +27,14 @@ export class TaskService {
     return newTask.save();
   }
 
-  async deleteTask(id): Promise<Task> {
-    const check = await this.TaskModel.findById(id);
-    if (!check) throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
+  async deleteTask(id: string): Promise<Task> {
+    const check = await this.checkTaskbyId(id);
     const deleteTask = await this.TaskModel.findByIdAndDelete(id);
     return deleteTask;
   }
 
-  async completeTask(id): Promise<boolean> {
-    const check = await this.TaskModel.findById(id);
-    if (!check) throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
+  async completeTask(id: string): Promise<boolean> {
+    const check = await this.checkTaskbyId(id);
     const complete = await this.TaskModel.findByIdAndUpdate(id, {
       complete: true,
     });
@@ -46,9 +42,22 @@ export class TaskService {
     const result = Task.complete;
     return result;
   }
-  async checTask(name: string): Promise<boolean> {
+
+  async checkTaskbyId(id: string): Promise<Task> {
+    const check = await this.TaskModel.findById(id);
+    if (!check) throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
+    return check;
+  }
+
+  async checkNameTask(name: string): Promise<boolean> {
     const check = await this.TaskModel.findOne({ name });
-    if (!check) return false;
+    if (check)
+      throw new HttpException('Task already exists', HttpStatus.UNAUTHORIZED);
     return true;
+  }
+  async checkTaskbyName(name: string): Promise<Task> {
+    const check = await this.TaskModel.findOne({ name });
+    if (!check) throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
+    return check;
   }
 }

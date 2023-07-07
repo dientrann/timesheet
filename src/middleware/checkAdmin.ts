@@ -12,11 +12,12 @@ import { User } from 'src/schemas/user.schema';
 export class checkAdmin implements NestMiddleware {
   constructor(private readonly jwtService: JwtService) {}
   async use(req: Request, res: Response, next: NextFunction) {
+    console.log(1);
+
     const token: string = req.cookies.token;
     const user: User = await this.jwtService.verify(token);
-    const isAdmin: number = user.role;
-    if (isAdmin != 1)
-      throw new HttpException('No Admin', HttpStatus.BAD_REQUEST);
+    const isAdmin = user.isAdmin;
+    if (isAdmin) throw new HttpException('No Admin', HttpStatus.BAD_REQUEST);
     next();
   }
 }

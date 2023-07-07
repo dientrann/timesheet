@@ -10,10 +10,7 @@ import { TimeSheetService } from 'src/modules/TimeSheet/timeSheet.service';
 
 @Injectable()
 export class checkToken implements NestMiddleware {
-  constructor(
-    private readonly jwtService: JwtService,
-  ) //private readonly timeSheetService: TimeSheetService,
-  {}
+  constructor(private readonly jwtService: JwtService) {}
   async use(req: Request, res: Response, next: NextFunction) {
     const token = req.cookies.token;
     if (!token)
@@ -21,8 +18,8 @@ export class checkToken implements NestMiddleware {
         'Unauthorized. No Token',
         HttpStatus.UNAUTHORIZED,
       );
+
     const user = await this.jwtService.verify(token);
-    // this.timeSheetService.abc();
     next();
   }
 }

@@ -7,6 +7,7 @@ import { ProjectDTO } from './DTO/project.DTO';
 import { UserService } from '../User/user.service';
 import { TaskService } from '../Task/task.service';
 import { InfoProjectDTO } from './DTO/infoProject.DTO';
+import { User } from 'src/schemas/user.schema';
 
 @Injectable()
 export class ProjectService {
@@ -33,12 +34,19 @@ export class ProjectService {
 
   async createProject(project: ProjectDTO): Promise<Project> {
     const { name, describe, status, implementer, task } = project;
-    const check = await this.ProjectModel.findOne({ name });
-    if (check)
-      throw new HttpException(
-        'The Project name already exists',
-        HttpStatus.BAD_REQUEST,
-      );
+
+    const resultName = await this.checkProjectbyName(name);
+
+    if (!!implementer.leader) {
+      const resultLeader = await this.getInfoLeader(implementer.leader);
+    }
+    if (!!implementer.staff) {
+      const resultStaff = await this.checkStaff(implementer.staff);
+    }
+    if (!!task) {
+      const resultTask = await this.getFullNameStaff(task);
+    }
+
     const newProject = new this.ProjectModel({
       name: name,
       describe: describe,
@@ -50,27 +58,25 @@ export class ProjectService {
   }
 
   async updateProject(id: string, project: ProjectDTO): Promise<Project> {
+    const check = await this.checkProjectbyID(id);
+
     const { name, describe, status, implementer, task } = project;
 
-    //Check leder có trong User Không
-    const nameleder = implementer.leader;
-    if (!!implementer) {
-      const checkUser = await this.userService.checkUser(nameleder);
-      if (!checkUser)
-        throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+    const resultName = await this.checkNameProject(name);
+
+    if (!!implementer.leader) {
+      const resultLeader = await this.getInfoLeader(implementer.leader);
     }
-    //Check task có trong Data không
+    if (!!implementer.staff) {
+      const resultStaff = await this.checkStaff(implementer.staff);
+    }
     if (!!task) {
-      const checkTask = await this.taskService.checTask(task);
-      if (!checkTask)
-        throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
+      const resultTask = await this.getFullNameStaff(task);
     }
-    //Status 1 là dự án bắt đầu. timeStart sẽ cập nhật giá trị Date khi status 1 đầ tiên.
+    //Status 1 là dự án bắt đầu. timeStart sẽ cập nhật giá trị Date khi status 1 lần đầu tiên.
     if (status == 1) {
       if (!!project.timeStart) project.timeStart = now();
     }
-    const check = await this.ProjectModel.findById(id);
-    if (!check) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     const newData: ProjectDTO = {
       name: name,
       describe: describe,
@@ -85,19 +91,25 @@ export class ProjectService {
   }
 
   async getInfoProject(id: string): Promise<InfoProjectDTO> {
-    const Project = await this.ProjectModel.findById(id);
-    if (!Project) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    const { name, status, implementer, timeStart, timeEnd, task } = Project;
-    const leader = Project.implementer.leader;
-    const User = await this.userService.dataUserbyName(leader);
-    if (!User) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    const { fullName, phone } = User;
+    const project = await this.checkProjectbyID(id);
+
+    const { name, status, implementer, timeStart, timeEnd, task } = project;
+
+    const leader = implementer.leader;
+
+    const userLeader = await this.getInfoLeader(implementer.leader);
+
+    const { fullName, phone } = userLeader;
+
+    const arrayFullName = await this.getFullNameStaff(implementer.staff);
+
     const infoProject: InfoProjectDTO = {
       nameProject: name,
       status: status,
       leader: implementer.leader,
       leaderName: fullName,
       leaderPhone: phone,
+      staff: arrayFullName,
       task: task,
       timeStart: timeStart,
       timeEnd: timeEnd,
@@ -105,9 +117,63 @@ export class ProjectService {
     return infoProject;
   }
 
-  async checkProject(name: string): Promise<boolean> {
+  async checkProjectbyID(id: string): Promise<Project> {
+    const check = await this.ProjectModel.findById(id);
+    if (!check)
+      throw new HttpException('Project Not Found', HttpStatus.BAD_REQUEST);
+    return check;
+  }
+
+  async checkProjectbyName(name: string): Promise<Project> {
     const check = await this.ProjectModel.findOne({ name });
-    if (!check) return false;
+    if (!check)
+      throw new HttpException('Project Not Found', HttpStatus.BAD_REQUEST);
+    return check;
+  }
+
+  async checkNameProject(name: string): Promise<boolean> {
+    const check = await this.ProjectModel.findOne({ name });
+    if (check)
+      throw new HttpException(
+        'The Project name already exists',
+        HttpStatus.BAD_REQUEST,
+      );
     return true;
+  }
+
+  async getInfoLeader(username: string): Promise<User> {
+    const checkUser = await this.userService.dataUserbyName(username);
+    if (!checkUser)
+      throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+    return checkUser;
+  }
+
+  async checkStaff(staff: Array<string>): Promise<boolean> {
+    for (const item of staff) {
+      const checkUser = await this.userService.checkUser(item);
+      if (!checkUser)
+        throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+    }
+    return true;
+  }
+
+  async checkArrayTask(task: Array<string>): Promise<boolean> {
+    for (const item of task) {
+      const checkTask = await this.taskService.checkTaskbyName(item);
+      if (!checkTask)
+        throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
+    }
+    return true;
+  }
+
+  async getFullNameStaff(staff: Array<string>): Promise<Array<string>> {
+    const fullNameStaff = [];
+    for (const item of staff) {
+      const user = await this.userService.dataUserbyName(item);
+      fullNameStaff.push(user.fullName);
+      if (!user)
+        throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+    }
+    return fullNameStaff;
   }
 }

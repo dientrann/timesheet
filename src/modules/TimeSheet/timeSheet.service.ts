@@ -6,6 +6,7 @@ import { TimeSheetDTO } from './DTO/timeSheet.DTO';
 import { ProjectService } from '../Project/project.service';
 import { TaskService } from '../Task/task.service';
 import { UserService } from '../User/user.service';
+import { User } from 'src/schemas/user.schema';
 
 @Injectable()
 export class TimeSheetService {
@@ -19,9 +20,8 @@ export class TimeSheetService {
   async listTimeSheetUser(username: string) {
     const currentTime: Date = now();
 
-    const timeSheet = await this.timeSheetModel.find({ user: username });
+    const timeSheet = await this.getTimeSheetUser(username);
 
-    if (!timeSheet) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     const dateTimeSheet = timeSheet.filter((item) => {
       return (
         item.createdAt.getDate() == currentTime.getDate() &&
@@ -32,18 +32,49 @@ export class TimeSheetService {
 
     return dateTimeSheet;
   }
-  async createTimeSheet(timeSheet: TimeSheetDTO): Promise<TimeSheet> {
-    const { project, task, note, workingtime, type, user } = timeSheet;
-    const checkProject = await this.projectService.checkProject(project);
-    if (!checkProject)
-      throw new HttpException('Project Not Found', HttpStatus.NOT_FOUND);
-    const checkTask = await this.taskService.checTask(task);
-    if (!checkTask)
-      throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
-    const checkUser = await this.userService.checkUser(user);
-    if (!checkUser)
-      throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
-    const newTimeSheet = new this.timeSheetModel(timeSheet);
+  async createTimeSheet(
+    timeSheet: TimeSheetDTO,
+    userLogin: User,
+  ): Promise<TimeSheet> {
+    const { project, task, note, workingtime, type } = timeSheet;
+
+    const checkProject = await this.projectService.checkProjectbyName(project);
+
+    const checkTask = await this.taskService.checkTaskbyName(task);
+
+    const newTimeSheet = new this.timeSheetModel({
+      project: project,
+      task: task,
+      note: note,
+      workingtime: workingtime,
+      type: type,
+      user: userLogin.username,
+    });
     return newTimeSheet.save();
+  }
+
+  async createTimeSheetWeek(userLogin: string) {
+    const timeSheet = await this.getTimeSheetUser(userLogin);
+    const timesheetWeek = timeSheet.map((item) => {
+      return {
+        project: item.project,
+        task: item.task,
+        note: item.task,
+        workingtime: item.workingtime,
+        type: item.type,
+        user: item.user,
+        createdAt: item.createdAt.getDay(),
+        updatedAt: item.updatedAt.getDay(),
+      };
+    });
+    console.log({ timesheetWeek });
+    for (const item of timesheetWeek) {
+    }
+  }
+
+  async getTimeSheetUser(username: string) {
+    const timeSheet = await this.timeSheetModel.find({ user: username });
+    if (!timeSheet) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    return timeSheet;
   }
 }
