@@ -3,6 +3,10 @@ export class InfoProjectDTO {
 
   status: number;
 
+  //clientName: string;
+
+  //clientPhone: string;
+
   leader: string;
 
   leaderName: string;

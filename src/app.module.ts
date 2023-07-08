@@ -51,23 +51,24 @@ import { TimeSheetController } from './modules/TimeSheet/timeSheet.controller';
   controllers: [AppController],
   providers: [AppService, checkToken, checkAdmin],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(checkToken)
-      .forRoutes(
-        UserController,
-        TaskController,
-        ClientController,
-        ProjectController,
-      );
-    consumer
-      .apply(checkAdmin)
-      .forRoutes(
-        UserController,
-        TaskController,
-        ClientController,
-        ProjectController,
-      );
-  }
-}
+export class AppModule {}
+// implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer
+//       .apply(checkToken)
+//       .forRoutes(
+//         UserController,
+//         TaskController,
+//         ClientController,
+//         ProjectController,
+//       );
+//     consumer
+//       .apply(checkAdmin)
+//       .forRoutes(
+//         UserController,
+//         TaskController,
+//         ClientController,
+//         ProjectController,
+//       );
+//   }
+// }

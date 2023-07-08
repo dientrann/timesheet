@@ -7,6 +7,8 @@ export class ProjectDTO {
 
   status?: number;
 
+  clientPhone?: string;
+
   implementer?: Implementer;
 
   task?: Array<string>;

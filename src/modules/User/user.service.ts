@@ -126,6 +126,8 @@ export class UserService {
 
   async dataUserbyName(name: string): Promise<User> {
     const user = await this.UserModel.findOne({ username: name });
+    console.log(user);
+
     return user;
   }
 

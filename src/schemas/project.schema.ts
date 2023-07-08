@@ -16,7 +16,7 @@ export class Project {
   status: number;
 
   @Prop()
-  client: string;
+  clientPhone: string;
 
   @Prop()
   implementer: Implementer;

@@ -42,4 +42,9 @@ export class ClientService {
     const editClient = await this.ClientModel.findByIdAndUpdate(id, dataClient);
     return editClient;
   }
+  async getClient(phone: string): Promise<Client> {
+    const client = await this.ClientModel.findOne({ phone });
+    if (!client) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    return client;
+  }
 }

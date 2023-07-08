@@ -7,6 +7,7 @@ import { ProjectService } from '../Project/project.service';
 import { TaskService } from '../Task/task.service';
 import { UserService } from '../User/user.service';
 import { User } from 'src/schemas/user.schema';
+import { ClientService } from '../Client/client.service';
 
 @Injectable()
 export class TimeSheetService {
@@ -16,6 +17,7 @@ export class TimeSheetService {
     private readonly taskService: TaskService,
     private readonly projectService: ProjectService,
     private readonly userService: UserService,
+    private readonly clientService: ClientService,
   ) {}
   async listTimeSheetUser(username: string) {
     const currentTime: Date = now();

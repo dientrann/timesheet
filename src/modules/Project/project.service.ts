@@ -8,6 +8,8 @@ import { UserService } from '../User/user.service';
 import { TaskService } from '../Task/task.service';
 import { InfoProjectDTO } from './DTO/infoProject.DTO';
 import { User } from 'src/schemas/user.schema';
+import { ClientService } from '../Client/client.service';
+import { Client } from 'src/schemas/client.schema';
 
 @Injectable()
 export class ProjectService {
@@ -17,6 +19,7 @@ export class ProjectService {
     private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly taskService: TaskService,
+    private readonly clientService: ClientService,
   ) {}
 
   async pagelistProject(page: number) {
@@ -33,7 +36,7 @@ export class ProjectService {
   }
 
   async createProject(project: ProjectDTO): Promise<Project> {
-    const { name, describe, status, implementer, task } = project;
+    const { name, describe, status, clientPhone, implementer, task } = project;
 
     const resultName = await this.checkProjectbyName(name);
 
@@ -44,12 +47,13 @@ export class ProjectService {
       const resultStaff = await this.checkStaff(implementer.staff);
     }
     if (!!task) {
-      const resultTask = await this.getFullNameStaff(task);
+      const resultTask = await this.getFullNameStaff(implementer.staff);
     }
 
     const newProject = new this.ProjectModel({
       name: name,
       describe: describe,
+      clientPhone: clientPhone,
       status: status || 0,
       implementer: implementer,
       task: task,
@@ -93,7 +97,8 @@ export class ProjectService {
   async getInfoProject(id: string): Promise<InfoProjectDTO> {
     const project = await this.checkProjectbyID(id);
 
-    const { name, status, implementer, timeStart, timeEnd, task } = project;
+    const { name, status, implementer, timeStart, timeEnd, task, clientPhone } =
+      project;
 
     const leader = implementer.leader;
 
@@ -103,9 +108,13 @@ export class ProjectService {
 
     const arrayFullName = await this.getFullNameStaff(implementer.staff);
 
+    //const client = await this.clientService.getClient(clientPhone);
+
     const infoProject: InfoProjectDTO = {
       nameProject: name,
       status: status,
+      //clientName: client.name,
+      //clientPhone: clientPhone,
       leader: implementer.leader,
       leaderName: fullName,
       leaderPhone: phone,
@@ -175,5 +184,9 @@ export class ProjectService {
         throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
     }
     return fullNameStaff;
+  }
+
+  async getInfoClient(phone: string): Promise<Client> {
+    return;
   }
 }
