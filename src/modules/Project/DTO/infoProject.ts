@@ -1,11 +1,11 @@
-export class InfoProjectDTO {
+export class InfoProject {
   nameProject: string;
 
   status: number;
 
-  //clientName: string;
+  clientName: string;
 
-  //clientPhone: string;
+  clientPhone: string;
 
   leader: string;
 

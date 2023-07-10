@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/user.schema';
@@ -35,7 +30,6 @@ export class AuthService {
     const checkPassword = await bcrypt.compare(password, findUser.password);
     if (!checkPassword)
       throw new HttpException('Incorrect password', HttpStatus.UNAUTHORIZED);
-    const dataUser = await this.UserModel.findOne({ username });
     const token = await this.jwtService.sign({
       username: username,
     });
@@ -45,16 +39,14 @@ export class AuthService {
   async validateUser(username: string): Promise<UserAuthentication> {
     const user = await this.userService.findOne(username);
     const { fullName, email, phone, isAdmin } = user;
-    if (user) {
-      const result: UserAuthentication = {
-        username: username,
-        fullName: fullName,
-        email: email,
-        phone: phone,
-        isAdmin: isAdmin,
-      };
-      return result;
-    }
-    return null;
+    if (!user) throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+    const result: UserAuthentication = {
+      username: username,
+      fullName: fullName,
+      email: email,
+      phone: phone,
+      isAdmin: isAdmin,
+    };
+    return result;
   }
 }

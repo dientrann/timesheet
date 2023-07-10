@@ -15,14 +15,22 @@ import { TimeSheetDTO } from './DTO/timeSheet.DTO';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('timesheet')
-@UseGuards(AuthGuard('jwt'))
 export class TimeSheetController {
   constructor(private readonly timeSheetService: TimeSheetService) {}
 
   @Get()
-  async listTimeSheet(@Res() res, @Request() req) {
+  async listTimeSheet(
+    @Res() res,
+    @Request() req,
+    @Query('fromDate') fromDate: string,
+    @Query('toDate') toDate: string,
+  ) {
     const username = req.user.username;
-    const list = await this.timeSheetService.listTimeSheetUser(username);
+    const list = await this.timeSheetService.listTimeSheetUser(
+      username,
+      fromDate,
+      toDate,
+    );
     if (!list)
       throw new HttpException(
         'Internal Server Error',
@@ -49,12 +57,5 @@ export class TimeSheetController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     return res.status(HttpStatus.CREATED).json({ message: 'Create Succeed' });
-  }
-
-  @Get('test')
-  async timeSheetWeek(@Res() res, @Request() req) {
-    const username = req.user.username;
-    const list = await this.timeSheetService.createTimeSheetWeek(username);
-    return res.status(HttpStatus.OK).json({ list, message: 'Succeed' });
   }
 }

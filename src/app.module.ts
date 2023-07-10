@@ -1,9 +1,4 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -15,14 +10,8 @@ import { TaskModule } from './modules/Task/task.module';
 import { ClientModule } from './modules/Client/client.module';
 import { ProjectModule } from './modules/Project/project.module';
 import { TimeSheetModule } from './modules/TimeSheet/timeSheet.module';
-import { checkToken } from './middleware/checkToken';
 import { JwtModule } from '@nestjs/jwt';
-import { TaskController } from './modules/Task/task.controller';
 import { checkAdmin } from './middleware/checkAdmin';
-import { ClientController } from './modules/Client/client.controller';
-import { UserController } from './modules/User/user.controller';
-import { ProjectController } from './modules/Project/project.controller';
-import { TimeSheetController } from './modules/TimeSheet/timeSheet.controller';
 
 @Module({
   imports: [
@@ -49,26 +38,6 @@ import { TimeSheetController } from './modules/TimeSheet/timeSheet.controller';
     TimeSheetModule,
   ],
   controllers: [AppController],
-  providers: [AppService, checkToken, checkAdmin],
+  providers: [AppService, checkAdmin],
 })
 export class AppModule {}
-// implements NestModule {
-//   configure(consumer: MiddlewareConsumer) {
-//     consumer
-//       .apply(checkToken)
-//       .forRoutes(
-//         UserController,
-//         TaskController,
-//         ClientController,
-//         ProjectController,
-//       );
-//     consumer
-//       .apply(checkAdmin)
-//       .forRoutes(
-//         UserController,
-//         TaskController,
-//         ClientController,
-//         ProjectController,
-//       );
-//   }
-// }

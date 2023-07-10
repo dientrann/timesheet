@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -10,6 +10,12 @@ import { PassportModule } from '@nestjs/passport';
 import { UserService } from '../User/user.service';
 import { JsonWebTokenStrategy } from 'src/Authentication/verification/jwt.strategy';
 import { LocalStrategy } from 'src/Authentication/verification/local.strategy';
+import { CheckToken } from 'src/middleware/checkToken';
+import { UserController } from '../User/user.controller';
+import { TaskController } from '../Task/task.controller';
+import { ClientController } from '../Client/client.controller';
+import { ProjectController } from '../Project/project.controller';
+import { TimeSheetController } from '../TimeSheet/timeSheet.controller';
 
 @Module({
   imports: [
@@ -29,6 +35,25 @@ import { LocalStrategy } from 'src/Authentication/verification/local.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JsonWebTokenStrategy, UserService],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JsonWebTokenStrategy,
+    UserService,
+    CheckToken,
+  ],
+  exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(CheckToken)
+      .forRoutes(
+        UserController,
+        TaskController,
+        ClientController,
+        ProjectController,
+        TimeSheetController,
+      );
+  }
+}

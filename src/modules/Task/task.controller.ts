@@ -14,7 +14,10 @@ import {
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { TaskDTO } from './DTO/task.DTO';
+import { RoleGuard } from 'src/Authentication/role/roles.guard';
+
 @Controller('tasks')
+@UseGuards(RoleGuard)
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
@@ -65,5 +68,29 @@ export class TaskController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     return res.status(HttpStatus.OK).json({ message: 'Complete Succeed' });
+  }
+
+  @Get('filter')
+  async getUncompleteTask(
+    @Res() res,
+    @Query('complete') complete: boolean,
+    @Query('time') time: number,
+  ) {
+    const dataUncompleteTask = await this.taskService.filterComplete(
+      complete,
+      time,
+    );
+    if (!dataUncompleteTask)
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    if (dataUncompleteTask.length == 0)
+      res
+        .status(HttpStatus.OK)
+        .json({ Uncomplete: 'No Task', message: 'Succeed' });
+    return res
+      .status(HttpStatus.OK)
+      .json({ dataUncompleteTask, message: 'Succeed' });
   }
 }

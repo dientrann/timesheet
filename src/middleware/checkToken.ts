@@ -4,14 +4,17 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { TimeSheetService } from 'src/modules/TimeSheet/timeSheet.service';
+import { Request, Response, NextFunction } from 'express';
+import { AuthService } from 'src/modules/Auth/auth.service';
 
 @Injectable()
-export class checkToken implements NestMiddleware {
-  constructor(private readonly jwtService: JwtService) {}
-  async use(req: Request, res: Response, next: NextFunction) {
+export class CheckToken implements NestMiddleware {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly authService: AuthService,
+  ) {}
+  async use(req: Request | any, res: Response, next: NextFunction) {
     const token = req.cookies.token;
     if (!token)
       throw new HttpException(
@@ -19,7 +22,9 @@ export class checkToken implements NestMiddleware {
         HttpStatus.UNAUTHORIZED,
       );
 
-    const user = await this.jwtService.verify(token);
+    const { username } = await this.jwtService.verify(token);
+    const user = await this.authService.validateUser(username);
+    req.user = user;
     next();
   }
 }

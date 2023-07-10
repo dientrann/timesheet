@@ -13,16 +13,14 @@ import {
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { ProjectDTO } from './DTO/project.DTO';
-import { AuthGuard } from '@nestjs/passport';
 import { RoleGuard } from '../../Authentication/role/roles.guard';
 
 @Controller('project')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(RoleGuard)
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Get()
-  @UseGuards(RoleGuard)
   async pageListProject(@Res() res, @Query('page') page: number) {
     const intPage = page || 1;
     const pageData = await this.projectService.pagelistProject(intPage);
@@ -34,14 +32,13 @@ export class ProjectController {
     if (pageData.length == 0)
       return res
         .status(HttpStatus.OK)
-        .json({ project: 'Not Data', message: 'Succeed' });
+        .json({ project: 'No Data', message: 'Succeed' });
     return res
       .status(HttpStatus.OK)
       .json({ pageData, message: `Page : ${page}` });
   }
 
   @Post('add')
-  @UseGuards(RoleGuard)
   async createProject(@Res() res, @Body() project: ProjectDTO) {
     const newProject = await this.projectService.createProject(project);
     if (!newProject)
@@ -49,11 +46,12 @@ export class ProjectController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.CREATED).json({ message: 'Create Succeed' });
+    return res
+      .status(HttpStatus.CREATED)
+      .json({ nameProject: newProject.name, message: 'Create Succeed' });
   }
 
   @Put('update/:id')
-  @UseGuards(RoleGuard)
   async updateProject(
     @Res() res,
     @Param('id') id: string,
@@ -65,11 +63,12 @@ export class ProjectController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.OK).json({ message: 'Update Succeed' });
+    return res
+      .status(HttpStatus.OK)
+      .json({ id: id, message: 'Update Succeed' });
   }
 
   @Get(':id/info')
-  @UseGuards(RoleGuard)
   async infoProject(@Res() res, @Param('id') id: string) {
     const infoProject = await this.projectService.getInfoProject(id);
     if (!infoProject)
@@ -77,6 +76,6 @@ export class ProjectController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.OK).json({ infoProject });
+    return res.status(HttpStatus.OK).json({ infoProject, message: 'Succeed' });
   }
 }

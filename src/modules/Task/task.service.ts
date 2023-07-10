@@ -43,6 +43,30 @@ export class TaskService {
     return result;
   }
 
+  async filterComplete(complete: boolean, time: number) {
+    const currentDate = new Date();
+    const query = {
+      complete,
+      createdAt: {
+        $lte: new Date(currentDate.getTime() - time * 24 * 60 * 60 * 1000),
+      },
+    };
+
+    const dataTaskUncomplete = await this.TaskModel.find({ ...query });
+
+    // const dataTaskUncomplete = await this.TaskModel.aggregate([
+    //   {
+    //     $match: {
+    //       complete: complete === true,
+    //       createdAt: {
+    //         $lte: new Date(currentDate.getTime() - time * 24 * 60 * 60 * 1000),
+    //       },
+    //     },
+    //   },
+    // ]);
+    return dataTaskUncomplete;
+  }
+
   async checkTaskbyId(id: string): Promise<Task> {
     const check = await this.TaskModel.findById(id);
     if (!check) throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);

@@ -7,7 +7,6 @@ import { ProjectService } from '../Project/project.service';
 import { TaskService } from '../Task/task.service';
 import { UserService } from '../User/user.service';
 import { User } from 'src/schemas/user.schema';
-import { ClientService } from '../Client/client.service';
 
 @Injectable()
 export class TimeSheetService {
@@ -17,23 +16,26 @@ export class TimeSheetService {
     private readonly taskService: TaskService,
     private readonly projectService: ProjectService,
     private readonly userService: UserService,
-    private readonly clientService: ClientService,
   ) {}
-  async listTimeSheetUser(username: string) {
-    const currentTime: Date = now();
+  async listTimeSheetUser(username: string, fromDate: string, toDate: string) {
+    const newtoDate = new Date(toDate);
+    newtoDate.setDate(newtoDate.getDate() + 1);
 
-    const timeSheet = await this.getTimeSheetUser(username);
+    const dataTimeSheet = await this.timeSheetModel.aggregate([
+      {
+        $match: {
+          user: username,
+          createdAt: {
+            $gte: new Date(fromDate),
+            $lte: newtoDate,
+          },
+        },
+      },
+    ]);
 
-    const dateTimeSheet = timeSheet.filter((item) => {
-      return (
-        item.createdAt.getDate() == currentTime.getDate() &&
-        item.createdAt.getMonth() == currentTime.getMonth() &&
-        item.createdAt.getFullYear() == currentTime.getFullYear()
-      );
-    });
-
-    return dateTimeSheet;
+    return dataTimeSheet;
   }
+
   async createTimeSheet(
     timeSheet: TimeSheetDTO,
     userLogin: User,
@@ -42,7 +44,7 @@ export class TimeSheetService {
 
     const checkProject = await this.projectService.checkProjectbyName(project);
 
-    const checkTask = await this.taskService.checkTaskbyName(task);
+    const checkTask = await this.checkTaskProject(project, task);
 
     const newTimeSheet = new this.timeSheetModel({
       project: project,
@@ -51,27 +53,24 @@ export class TimeSheetService {
       workingtime: workingtime,
       type: type,
       user: userLogin.username,
+      status: 0,
     });
     return newTimeSheet.save();
   }
 
-  async createTimeSheetWeek(userLogin: string) {
-    const timeSheet = await this.getTimeSheetUser(userLogin);
-    const timesheetWeek = timeSheet.map((item) => {
-      return {
-        project: item.project,
-        task: item.task,
-        note: item.task,
-        workingtime: item.workingtime,
-        type: item.type,
-        user: item.user,
-        createdAt: item.createdAt.getDay(),
-        updatedAt: item.updatedAt.getDay(),
-      };
-    });
-    console.log({ timesheetWeek });
-    for (const item of timesheetWeek) {
-    }
+  async submitTimeSheetWeek (){
+    
+  }
+
+  async checkTaskProject(project: string, task: string): Promise<boolean> {
+    const taskProject = (await this.projectService.checkProjectbyName(project))
+      .task;
+
+    const findTaskProject = taskProject.includes(task);
+    if (!findTaskProject)
+      throw new HttpException('No Task in the Project', HttpStatus.NOT_FOUND);
+
+    return true;
   }
 
   async getTimeSheetUser(username: string) {

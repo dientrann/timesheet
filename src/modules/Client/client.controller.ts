@@ -17,26 +17,26 @@ import { AuthGuard } from '@nestjs/passport';
 import { RoleGuard } from 'src/Authentication/role/roles.guard';
 
 @Controller('client')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(RoleGuard)
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   @Get()
-  @UseGuards(RoleGuard)
   async pageListClient(@Res() res, @Query('page') page: number) {
     const pageInt = page || 1;
-    const dataPage = await this.clientService.pagelistClient(pageInt);
-    if (!dataPage)
+    const { pageData, maxPage } = await this.clientService.pagelistClient(
+      pageInt,
+    );
+    if (!pageData)
       throw new HttpException(
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     return res
       .status(HttpStatus.OK)
-      .json({ dataPage, message: `Page: ${page}` });
+      .json({ pageData, message: `Page: ${page} MaxPage: ${maxPage} ` });
   }
   @Post('add')
-  @UseGuards(RoleGuard)
   async createClient(@Res() res, @Body() client: ClientDTO) {
     const newClient = await this.clientService.createClient(client);
     if (!newClient)
@@ -48,7 +48,6 @@ export class ClientController {
   }
 
   @Put('update/:id')
-  @UseGuards(RoleGuard)
   async updateClient(
     @Res() res,
     @Param('id') id: string,

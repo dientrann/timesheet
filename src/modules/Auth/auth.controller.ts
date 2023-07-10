@@ -26,7 +26,9 @@ export class AuthController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.CREATED).json({ message: 'Create Succeed' });
+    return res
+      .status(HttpStatus.CREATED)
+      .json({ username: user.username, message: 'Create Succeed' });
   }
   @Post('login')
   async login(@Res() res, @Body() user: AccountDTO) {

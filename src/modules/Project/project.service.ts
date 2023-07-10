@@ -6,7 +6,7 @@ import { Project, ProjectDocument } from 'src/schemas/project.schema';
 import { ProjectDTO } from './DTO/project.DTO';
 import { UserService } from '../User/user.service';
 import { TaskService } from '../Task/task.service';
-import { InfoProjectDTO } from './DTO/infoProject.DTO';
+import { InfoProject } from './DTO/infoProject';
 import { User } from 'src/schemas/user.schema';
 import { ClientService } from '../Client/client.service';
 import { Client } from 'src/schemas/client.schema';
@@ -94,7 +94,7 @@ export class ProjectService {
     return editProject;
   }
 
-  async getInfoProject(id: string): Promise<InfoProjectDTO> {
+  async getInfoProject(id: string): Promise<InfoProject> {
     const project = await this.checkProjectbyID(id);
 
     const { name, status, implementer, timeStart, timeEnd, task, clientPhone } =
@@ -108,13 +108,13 @@ export class ProjectService {
 
     const arrayFullName = await this.getFullNameStaff(implementer.staff);
 
-    //const client = await this.clientService.getClient(clientPhone);
+    const client = await this.clientService.getClient(clientPhone);
 
-    const infoProject: InfoProjectDTO = {
+    const infoProject: InfoProject = {
       nameProject: name,
       status: status,
-      //clientName: client.name,
-      //clientPhone: clientPhone,
+      clientName: client.name,
+      clientPhone: clientPhone,
       leader: implementer.leader,
       leaderName: fullName,
       leaderPhone: phone,
