@@ -14,7 +14,7 @@ import {
 import { ClientService } from './client.service';
 import { ClientDTO } from './DTO/client.DTO';
 import { AuthGuard } from '@nestjs/passport';
-import { RoleGuard } from 'src/Authentication/role/roles.guard';
+import { RoleGuard } from 'src/modules/Auth/Role/roles.guard';
 
 @Controller('client')
 @UseGuards(RoleGuard)

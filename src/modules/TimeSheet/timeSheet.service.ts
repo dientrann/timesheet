@@ -58,8 +58,12 @@ export class TimeSheetService {
     return newTimeSheet.save();
   }
 
-  async submitTimeSheetWeek (){
-    
+  async submitTimeSheetWeek(username: string) {
+    const updateMany = await this.timeSheetModel.updateMany(
+      { user: username },
+      { $set: { status: 1 } },
+    );
+    return updateMany.modifiedCount;
   }
 
   async checkTaskProject(project: string, task: string): Promise<boolean> {

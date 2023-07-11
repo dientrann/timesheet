@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { ProjectDTO } from './DTO/project.DTO';
-import { RoleGuard } from '../../Authentication/role/roles.guard';
+import { RoleGuard } from '../Auth/Role/roles.guard';
 
 @Controller('project')
 @UseGuards(RoleGuard)

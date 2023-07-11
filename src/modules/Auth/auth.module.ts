@@ -8,14 +8,14 @@ import { User, UserSchema } from 'src/schemas/user.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UserService } from '../User/user.service';
-import { JsonWebTokenStrategy } from 'src/Authentication/verification/jwt.strategy';
-import { LocalStrategy } from 'src/Authentication/verification/local.strategy';
+import { JsonWebTokenStrategy } from 'src/modules/Auth/Verification/jwt.strategy';
 import { CheckToken } from 'src/middleware/checkToken';
 import { UserController } from '../User/user.controller';
 import { TaskController } from '../Task/task.controller';
 import { ClientController } from '../Client/client.controller';
 import { ProjectController } from '../Project/project.controller';
 import { TimeSheetController } from '../TimeSheet/timeSheet.controller';
+import { LocalStrategy } from './Verification/local.strategy';
 
 @Module({
   imports: [

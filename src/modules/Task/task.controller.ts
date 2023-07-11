@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { TaskDTO } from './DTO/task.DTO';
-import { RoleGuard } from 'src/Authentication/role/roles.guard';
+import { RoleGuard } from 'src/modules/Auth/Role/roles.guard';
 
 @Controller('tasks')
 @UseGuards(RoleGuard)

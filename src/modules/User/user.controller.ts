@@ -14,7 +14,7 @@ import {
 import { UserService } from './user.service';
 import { UserDTO } from './DTO/user.DTO';
 import { AuthGuard } from '@nestjs/passport';
-import { RoleGuard } from '../../Authentication/role/roles.guard';
+import { RoleGuard } from '../Auth/Role/roles.guard';
 
 @Controller('users')
 export class UserController {
