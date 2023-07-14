@@ -23,6 +23,9 @@ export class User {
   @Prop()
   isAdmin: boolean;
 
+  @Prop()
+  isEmployeeManager: boolean;
+
   @Prop({ default: now() })
   createdAt: Date;
 

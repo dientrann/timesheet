@@ -1,13 +1,21 @@
-import { IsString, Length, IsEmail, IsPhoneNumber } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import {
+  IsString,
+  Length,
+  IsEmail,
+  IsPhoneNumber,
+  IsOptional,
+} from 'class-validator';
 
 export class UserDTO {
   @IsString()
   @Length(2, 50)
   username: string;
 
+  @IsOptional()
   @IsString()
   @Length(2, 50)
-  password: string;
+  password?: string;
 
   @IsString()
   @Length(2, 50)
@@ -16,10 +24,12 @@ export class UserDTO {
   @IsEmail()
   email: string;
 
-  @IsPhoneNumber()
+  @IsPhoneNumber('VN')
   phone: string;
 
   isAdmin?: boolean;
+
+  isEmployeeManager?: boolean;
 
   createdAt?: Date;
 

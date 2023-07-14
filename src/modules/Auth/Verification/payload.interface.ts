@@ -8,4 +8,5 @@ export interface UserAuthentication {
   email: string;
   phone: string;
   isAdmin: boolean;
+  isEmployeeManager: boolean;
 }

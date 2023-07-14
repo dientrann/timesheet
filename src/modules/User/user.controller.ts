@@ -13,23 +13,35 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDTO } from './DTO/user.DTO';
-import { AuthGuard } from '@nestjs/passport';
-import { RoleGuard } from '../Auth/Role/roles.guard';
+import { AdminGuard } from '../Auth/Role/roles.guard';
 
 @Controller('users')
+@UseGuards(AdminGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @UseGuards(RoleGuard)
-  async pageListUser(@Res() res, @Query('page') page: number) {
+  async pageListUser(
+    @Res() res,
+    @Query('page') page: number,
+    @Query('itemPage') itemPage: number,
+  ) {
     const intPage = page || 1;
-    const pageData = await this.userService.pageListUser(intPage);
-    res.status(HttpStatus.OK).json({ pageData, message: 'Page: ' + page });
+    const { pageData, maxPage } = await this.userService.pageListUser(
+      intPage,
+      itemPage,
+    );
+    if (!pageData)
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    res
+      .status(HttpStatus.OK)
+      .json({ pageData, message: `Page: ${page} MaxPage: ${maxPage} ` });
   }
 
   @Post('add')
-  @UseGuards(RoleGuard)
   async createUserbyAdmin(@Res() res, @Body() user: UserDTO) {
     const newUser = await this.userService.createUserByAdmin(user);
     if (!newUser)
@@ -41,7 +53,6 @@ export class UserController {
   }
 
   @Put('update/:id')
-  @UseGuards(RoleGuard)
   async updateUserbyAdmin(
     @Res() res,
     @Param('id') id: string,

@@ -1,6 +1,11 @@
+import { IsString, Length,  } from "class-validator";
+
+
 export class TimeSheetDTO {
   project: string;
 
+  @IsString()
+  @Length(2, 50)
   task: string;
 
   note: string;
@@ -9,6 +14,8 @@ export class TimeSheetDTO {
 
   type: string;
 
+  @IsString()
+  @Length(2, 50)
   user: string;
 
   createdAt?: Date;

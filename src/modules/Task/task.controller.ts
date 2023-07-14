@@ -11,13 +11,15 @@ import {
   Query,
   Res,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
-import { TaskDTO } from './DTO/task.DTO';
-import { RoleGuard } from 'src/modules/Auth/Role/roles.guard';
+import { FilterQuery, TaskDTO } from './DTO/task.DTO';
+import { AdminGuard } from 'src/modules/Auth/Role/roles.guard';
+import { IsIn, IsInt, IsNumber, IsOptional } from 'class-validator';
 
 @Controller('tasks')
-@UseGuards(RoleGuard)
+@UseGuards(AdminGuard)
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
@@ -67,15 +69,20 @@ export class TaskController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.OK).json({ message: 'Complete Succeed' });
+    return res
+      .status(HttpStatus.OK)
+      .json({ id: id, message: 'Complete Succeed' });
   }
 
   @Get('filter')
   async getUncompleteTask(
     @Res() res,
-    @Query('complete') complete: boolean,
+
+    @Query('complete') complete: number,
     @Query('time') time: number,
+    //@Query() query: FilterQuery,
   ) {
+    
     const dataUncompleteTask = await this.taskService.filterComplete(
       complete,
       time,
@@ -92,5 +99,17 @@ export class TaskController {
     return res
       .status(HttpStatus.OK)
       .json({ dataUncompleteTask, message: 'Succeed' });
+  }
+  @Put(':id/archive')
+  async archiveTask(@Res() res, @Param('id') id: string) {
+    const result = await this.taskService.archiveTask(id);
+    if (!result)
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    return res
+      .status(HttpStatus.OK)
+      .json({ id: id, message: 'Archive Succeed' });
   }
 }

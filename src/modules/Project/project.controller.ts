@@ -13,10 +13,10 @@ import {
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { ProjectDTO } from './DTO/project.DTO';
-import { RoleGuard } from '../Auth/Role/roles.guard';
+import { AdminGuard } from '../Auth/Role/roles.guard';
 
 @Controller('project')
-@UseGuards(RoleGuard)
+@UseGuards(AdminGuard)
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 

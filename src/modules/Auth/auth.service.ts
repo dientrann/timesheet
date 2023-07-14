@@ -38,7 +38,7 @@ export class AuthService {
 
   async validateUser(username: string): Promise<UserAuthentication> {
     const user = await this.userService.findOne(username);
-    const { fullName, email, phone, isAdmin } = user;
+    const { fullName, email, phone, isAdmin, isEmployeeManager } = user;
     if (!user) throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
     const result: UserAuthentication = {
       username: username,
@@ -46,6 +46,7 @@ export class AuthService {
       email: email,
       phone: phone,
       isAdmin: isAdmin,
+      isEmployeeManager: isEmployeeManager,
     };
     return result;
   }

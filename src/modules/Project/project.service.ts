@@ -38,7 +38,7 @@ export class ProjectService {
   async createProject(project: ProjectDTO): Promise<Project> {
     const { name, describe, status, clientPhone, implementer, task } = project;
 
-    const resultName = await this.checkProjectbyName(name);
+    const resultName = await this.getProjectbyName(name);
 
     if (!!implementer.leader) {
       const resultLeader = await this.getInfoLeader(implementer.leader);
@@ -62,7 +62,7 @@ export class ProjectService {
   }
 
   async updateProject(id: string, project: ProjectDTO): Promise<Project> {
-    const check = await this.checkProjectbyID(id);
+    const check = await this.getProjectbyID(id);
 
     const { name, describe, status, implementer, task } = project;
 
@@ -95,7 +95,7 @@ export class ProjectService {
   }
 
   async getInfoProject(id: string): Promise<InfoProject> {
-    const project = await this.checkProjectbyID(id);
+    const project = await this.getProjectbyID(id);
 
     const { name, status, implementer, timeStart, timeEnd, task, clientPhone } =
       project;
@@ -126,14 +126,14 @@ export class ProjectService {
     return infoProject;
   }
 
-  async checkProjectbyID(id: string): Promise<Project> {
+  async getProjectbyID(id: string): Promise<Project> {
     const check = await this.ProjectModel.findById(id);
     if (!check)
       throw new HttpException('Project Not Found', HttpStatus.BAD_REQUEST);
     return check;
   }
 
-  async checkProjectbyName(name: string): Promise<Project> {
+  async getProjectbyName(name: string): Promise<Project> {
     const check = await this.ProjectModel.findOne({ name });
     if (!check)
       throw new HttpException('Project Not Found', HttpStatus.BAD_REQUEST);
@@ -168,7 +168,7 @@ export class ProjectService {
 
   async checkArrayTask(task: Array<string>): Promise<boolean> {
     for (const item of task) {
-      const checkTask = await this.taskService.checkTaskbyName(item);
+      const checkTask = await this.taskService.getTaskbyName(item);
       if (!checkTask)
         throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
     }
@@ -188,5 +188,26 @@ export class ProjectService {
 
   async getInfoClient(phone: string): Promise<Client> {
     return;
+  }
+
+  async checkProjectUser(
+    projectName: string,
+    username: string,
+  ): Promise<boolean> {
+    const project = await this.getProjectbyName(projectName);
+    const isLeader = project.implementer.leader === username;
+    let isStaff: boolean;
+
+    if (
+      project.implementer.staff == null ||
+      project.implementer.staff.length == 0
+    ) {
+      isStaff = false;
+    } else {
+      isStaff = project.implementer.staff.includes(username);
+    }
+    if (!isLeader && !isStaff)
+      throw new HttpException('User is not this Project', HttpStatus.NOT_FOUND);
+    return true;
   }
 }

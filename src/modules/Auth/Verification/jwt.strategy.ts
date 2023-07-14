@@ -25,6 +25,8 @@ export class JsonWebTokenStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: AuthPayload): Promise<UserAuthentication> {
+    console.log(payload);
+
     const user = await this.authService.validateUser(payload.username);
     if (!user) {
       throw new UnauthorizedException();

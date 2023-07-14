@@ -13,6 +13,7 @@ async function bootstrap() {
 
   const HOST = configService.get<string>('app.Server.Host');
   const PORT = configService.get<number>('app.Server.Port');
+
   await app.listen(PORT, () => {
     console.log(`Server is started on ${HOST}: ${PORT}`);
   });

@@ -13,11 +13,10 @@ import {
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { ClientDTO } from './DTO/client.DTO';
-import { AuthGuard } from '@nestjs/passport';
-import { RoleGuard } from 'src/modules/Auth/Role/roles.guard';
+import { AdminGuard } from 'src/modules/Auth/Role/roles.guard';
 
 @Controller('client')
-@UseGuards(RoleGuard)
+@UseGuards(AdminGuard)
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 

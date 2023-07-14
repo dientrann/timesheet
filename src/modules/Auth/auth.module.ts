@@ -35,13 +35,7 @@ import { LocalStrategy } from './Verification/local.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    LocalStrategy,
-    JsonWebTokenStrategy,
-    UserService,
-    CheckToken,
-  ],
+  providers: [AuthService, JsonWebTokenStrategy, UserService, CheckToken],
   exports: [AuthService],
 })
 export class AuthModule implements NestModule {
