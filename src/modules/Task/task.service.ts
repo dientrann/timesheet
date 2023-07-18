@@ -18,8 +18,8 @@ export class TaskService {
 
   async createTask(task: TaskDTO): Promise<Task> {
     const { name, describe } = task;
-    const check = await this.TaskModel.findOne({ name });
-    if (check)
+    const checkName = await this.getTaskbyName(name);
+    if (checkName)
       throw new HttpException('Task already exists', HttpStatus.UNAUTHORIZED);
     const newTask = new this.TaskModel({
       name: name,
@@ -29,26 +29,76 @@ export class TaskService {
     return newTask.save();
   }
 
-  async deleteTask(id): Promise<Task> {
-    const check = await this.TaskModel.findById(id);
-    if (!check) throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
+  async deleteTask(id: string): Promise<Task> {
+    const check = await this.getTaskbyId(id);
     const deleteTask = await this.TaskModel.findByIdAndDelete(id);
     return deleteTask;
   }
 
-  async completeTask(id): Promise<boolean> {
-    const check = await this.TaskModel.findById(id);
-    if (!check) throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
-    const complete = await this.TaskModel.findByIdAndUpdate(id, {
-      complete: true,
-    });
-    const Task = await this.TaskModel.findById(id);
-    const result = Task.complete;
-    return result;
-  }
-  async checTask(name: string): Promise<boolean> {
-    const check = await this.TaskModel.findOne({ name });
-    if (!check) return false;
+  async completeTask(id: string): Promise<boolean> {
+    const check = await this.getTaskbyId(id);
+    const result = await this.TaskModel.findByIdAndUpdate(
+      id,
+      {
+        complete: 1,
+      },
+      { new: true },
+    );
+    if (result.complete == 0) return false;
     return true;
+  }
+
+  async filterComplete(complete: number, time: number) {
+    const currentDate = new Date();
+    const query = {
+      complete,
+      createdAt: {
+        $lte: new Date(currentDate.getTime() - time * 24 * 60 * 60 * 1000),
+      },
+    };
+
+    const dataTaskUncomplete = await this.TaskModel.find({ ...query });
+
+    // const dataTaskUncomplete = await this.TaskModel.aggregate([
+    //   {
+    //     $match: {
+    //       complete: complete === true,
+    //       createdAt: {
+    //         $lte: new Date(currentDate.getTime() - time * 24 * 60 * 60 * 1000),
+    //       },
+    //     },
+    //   },
+    // ]);
+    return dataTaskUncomplete;
+  }
+
+  async archiveTask(id: string): Promise<boolean> {
+    const check = await this.getTaskbyId(id);
+    if (check.complete == 0)
+      throw new HttpException(
+        'Cannot archive an incomplete task',
+        HttpStatus.BAD_REQUEST,
+      );
+    const result = await this.TaskModel.findByIdAndUpdate(
+      id,
+      {
+        complete: 2,
+      },
+      { new: true },
+    );
+    if (result.complete == 1) return false;
+    return true;
+  }
+
+  async getTaskbyId(id: string): Promise<Task> {
+    const task = await this.TaskModel.findById(id);
+    if (!task) throw new HttpException('Task Not Found', HttpStatus.NOT_FOUND);
+    return task;
+  }
+
+  async getTaskbyName(name: string): Promise<Task> | null {
+    const task = await this.TaskModel.findOne({ name });
+    if (task) return task;
+    return null;
   }
 }

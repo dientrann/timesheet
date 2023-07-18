@@ -1,7 +1,11 @@
-export class InfoProjectDTO {
+export class InfoProject {
   nameProject: string;
 
   status: number;
+
+  clientName: string;
+
+  clientPhone: string;
 
   leader: string;
 
@@ -9,7 +13,9 @@ export class InfoProjectDTO {
 
   leaderPhone: string;
 
-  task: string;
+  staff: Array<string>;
+
+  task: Array<string>;
 
   timeStart?: Date;
 

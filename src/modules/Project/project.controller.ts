@@ -9,11 +9,14 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { ProjectDTO } from './DTO/project.DTO';
+import { AdminGuard } from '../Auth/Role/roles.guard';
 
 @Controller('project')
+@UseGuards(AdminGuard)
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
@@ -29,7 +32,7 @@ export class ProjectController {
     if (pageData.length == 0)
       return res
         .status(HttpStatus.OK)
-        .json({ project: 'Not Data', message: 'Succeed' });
+        .json({ project: 'No Data', message: 'Succeed' });
     return res
       .status(HttpStatus.OK)
       .json({ pageData, message: `Page : ${page}` });
@@ -43,7 +46,9 @@ export class ProjectController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.CREATED).json({ message: 'Create Succeed' });
+    return res
+      .status(HttpStatus.CREATED)
+      .json({ nameProject: newProject.name, message: 'Create Succeed' });
   }
 
   @Put('update/:id')
@@ -58,7 +63,9 @@ export class ProjectController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.OK).json({ message: 'Update Succeed' });
+    return res
+      .status(HttpStatus.OK)
+      .json({ id: id, message: 'Update Succeed' });
   }
 
   @Get(':id/info')
@@ -69,6 +76,6 @@ export class ProjectController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.OK).json({ infoProject });
+    return res.status(HttpStatus.OK).json({ infoProject, message: 'Succeed' });
   }
 }

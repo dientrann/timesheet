@@ -23,6 +23,9 @@ export class TimeSheet {
   @Prop()
   user: string;
 
+  @Prop()
+  status: number;
+
   @Prop({ default: now() })
   createdAt: Date;
 

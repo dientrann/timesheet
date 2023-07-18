@@ -14,9 +14,8 @@ export class checkAdmin implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const token: string = req.cookies.token;
     const user: User = await this.jwtService.verify(token);
-    const isAdmin: number = user.role;
-    if (isAdmin != 1)
-      throw new HttpException('No Admin', HttpStatus.BAD_REQUEST);
+    const isAdmin = user.isAdmin;
+    if (isAdmin) throw new HttpException('No Admin', HttpStatus.BAD_REQUEST);
     next();
   }
 }

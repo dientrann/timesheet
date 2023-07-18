@@ -9,25 +9,31 @@ import {
   Query,
   Res,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { ClientDTO } from './DTO/client.DTO';
+import { AdminGuard } from 'src/modules/Auth/Role/roles.guard';
 
 @Controller('client')
+@UseGuards(AdminGuard)
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
+
   @Get()
   async pageListClient(@Res() res, @Query('page') page: number) {
     const pageInt = page || 1;
-    const dataPage = await this.clientService.pagelistClient(pageInt);
-    if (!dataPage)
+    const { pageData, maxPage } = await this.clientService.pagelistClient(
+      pageInt,
+    );
+    if (!pageData)
       throw new HttpException(
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     return res
       .status(HttpStatus.OK)
-      .json({ dataPage, message: `Page: ${page}` });
+      .json({ pageData, message: `Page: ${page} MaxPage: ${maxPage} ` });
   }
   @Post('add')
   async createClient(@Res() res, @Body() client: ClientDTO) {

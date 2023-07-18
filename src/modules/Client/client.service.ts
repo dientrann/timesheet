@@ -13,16 +13,18 @@ export class ClientService {
     private readonly configService: ConfigService,
   ) {}
   async pagelistClient(page: number) {
-    const pageSize = this.configService.get<number>('app.PAGESIZE');
+    const pageSize = this.configService.get<number>('app.PageSize');
+    const totalItem = await this.ClientModel.countDocuments();
     const pageData = await this.ClientModel.find({})
       .skip(page * pageSize - pageSize)
       .limit(pageSize);
-    if (pageData.length == 0)
-      throw new HttpException(
-        'Exceeded the maximum number of pages',
-        HttpStatus.BAD_REQUEST,
-      );
-    return pageData;
+
+    const infoPage = {
+      pageData: pageData,
+      totalItem: totalItem,
+      maxPage: Math.ceil(totalItem / pageSize),
+    };
+    return infoPage;
   }
 
   async createClient(client: ClientDTO): Promise<Client> {
@@ -30,15 +32,21 @@ export class ClientService {
     return newClient.save();
   }
   async updateClient(id: string, client: ClientDTO): Promise<Client> {
-    const { name, address } = client;
+    const { name, address, phone } = client;
     const check = await this.ClientModel.findById(id);
     if (!check) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     const dataClient: ClientDTO = {
       name: name,
       address: address,
+      phone: phone,
       updatedAt: now(),
     };
     const editClient = await this.ClientModel.findByIdAndUpdate(id, dataClient);
     return editClient;
+  }
+  async getClient(phone: string): Promise<Client> {
+    const client = await this.ClientModel.findOne({ phone });
+    if (!client) throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    return client;
   }
 }

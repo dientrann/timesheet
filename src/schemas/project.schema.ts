@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { now } from 'mongoose';
-import { ImplementerDTO } from 'src/modules/Project/DTO/implementer.DTO';
+import { Implementer } from 'src/modules/Project/DTO/implementer';
 
 export type ProjectDocument = Project & Document;
 
@@ -16,10 +16,13 @@ export class Project {
   status: number;
 
   @Prop()
-  implementer: ImplementerDTO;
+  clientPhone: string;
 
   @Prop()
-  task: string;
+  implementer: Implementer;
+
+  @Prop()
+  task: Array<string>;
 
   @Prop()
   timeStart: Date;

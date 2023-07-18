@@ -11,6 +11,9 @@ export class Client {
   @Prop()
   address: string;
 
+  @Prop()
+  phone: string;
+
   @Prop({ default: now() })
   createdAt: Date;
 

@@ -1,31 +1,35 @@
 import {
   Controller,
   Post,
-  Get,
   Res,
   Body,
-  Query,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { UserDTO } from './DTO/user.DTO';
+import { UserDTO } from '../User/DTO/user.DTO';
 import { AuthService } from './auth.service';
-import { AccountDTO } from './DTO/account.DTO';
+import { AccountDTO } from '../User/DTO/account.DTO';
+import { UserService } from '../User/user.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {}
   @Post('register')
   async createUser(@Res() res, @Body() user: UserDTO) {
-    const newUser = await this.authService.createUser(user);
+    const newUser = await this.userService.createUser(user);
+
     if (!newUser)
       throw new HttpException(
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    return res.status(HttpStatus.CREATED).json({ message: 'Create Succeed' });
+    return res
+      .status(HttpStatus.CREATED)
+      .json({ username: user.username, message: 'Create Succeed' });
   }
-
   @Post('login')
   async login(@Res() res, @Body() user: AccountDTO) {
     const token = await this.authService.login(user);
@@ -34,6 +38,7 @@ export class AuthController {
         'Internal Server Error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+
     return res
       .status(HttpStatus.OK)
       .cookie('token', token)

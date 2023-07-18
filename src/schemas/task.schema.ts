@@ -12,7 +12,7 @@ export class Task {
   describe: string;
 
   @Prop()
-  complete: boolean;
+  complete: number;
 
   @Prop({ default: now() })
   createdAt: Date;
